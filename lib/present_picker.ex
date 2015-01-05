@@ -11,8 +11,8 @@ defmodule PresentPicker do
 
   defp _pick([head | tail], receivers, current, {solutions, nbr_found_solutions}, nbr_wanted_solutions, constraints) do
     List.delete(receivers, head) |> Enum.reduce({solutions, nbr_found_solutions}, fn  receiver, {solutions, nbr_found_solutions} ->
-      if nbr_found_solutions < nbr_wanted_solutions  && do_not_contains(current, constraints)do
-        current = List.insert_at(current, -1, {head, receiver})
+      if nbr_found_solutions < nbr_wanted_solutions && do_not_contains([head, receiver], constraints) && do_not_contains([head, receiver], current) do
+        current = List.insert_at(current, -1, [head, receiver])
         {solutions, nbr_found_solutions} = _pick(tail,  List.delete(receivers, receiver), current, {solutions, nbr_found_solutions}, nbr_wanted_solutions, constraints)
       end
       {solutions, nbr_found_solutions}
@@ -20,16 +20,9 @@ defmodule PresentPicker do
   end
 
   defp do_not_contains(current, constraints) do
-    true
+    !Enum.any?(constraints, &(&1 -- current == []))
   end
 end
 
-PresentPicker.pick(["Christophe", "Mathilde", "Sarah", "David", "Denis", "Bea", "Nico", "Ben", "Mémé", "Robin", "Sylvie", "Anno", "Cyrille", "Dirk", "Isabelle", "Bernard", "Anne-Marie"], 5, [])
+PresentPicker.pick(["Christophe", "Mathilde", "Sarah", "David", "Denis", "Bea", "Nico", "Ben", "Mémé", "Robin", "Sylvie", "Anno", "Cyrille", "Dirk", "Isabelle", "Bernard", "Anne-Marie"], 1, [["Christophe", "Mathilde"], ["David", "Sarah"], ["Denis", "Bea"], ["Ben", "Mémé"], ["Robin", "Sylvie"], ["Anno", "Cyrille"], ["Dirk", "Isabelle"], ["Bernard","Anne-Marie"]])
 
-
-!Enum.find([{"Christophe", "Mathilde"}, {"Mathilde", "Christophe"}, {"Sarah", "David"},
-  {"David", "Sarah"}, {"Denis", "Bea"}, {"Bea", "Denis"}, {"Nico", "Ben"},
-  {"Ben", "Nico"}, {"Mémé", "Robin"}, {"Robin", "Mémé"}, {"Sylvie", "Anno"},
-  {"Anno", "Sylvie"}, {"Cyrille", "Dirk"}, {"Dirk", "Isabelle"},
-  {"Isabelle", "Anne-Marie"}, {"Bernard", "Cyrille"},
-  {"Anne-Marie", "Bernard"}], &(&1 =={"Cyrille","Bernard"}))
